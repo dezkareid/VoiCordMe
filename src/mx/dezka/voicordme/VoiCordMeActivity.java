@@ -26,18 +26,18 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-
+//Implementamos OnInitListener para detectar los diferentes estados del speech
 public class VoiCordMeActivity extends Activity implements OnClickListener, OnInitListener {
 
 	private Button registroButton;
 	private String nombre;
 	private String asunto;
 	protected static final int RESULT_SPEECH = 1;
-	private TextToSpeech voz;
-	private UtteranceProgressListener progress;
-	public HashMap<String, String> voiceEntries;
-	private AQuery aq;
-	private boolean saludo;
+	private TextToSpeech voz; //Con esta variable haremos que android hable
+	private UtteranceProgressListener progress; //Con esta sabremos el estado en que se encuentra la voz
+	public HashMap<String, String> voiceEntries; //Sirve para indicar que texto se esta hablando
+	private AQuery aq;//Biblioteca para manejo de red
+	private boolean saludo;//Indica si se estan preguntando datos al usuario
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,35 +45,33 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 		setContentView(R.layout.voicecordme_layout);
 		registroButton = (Button) findViewById(R.id.registroButton);
 		registroButton.setOnClickListener(this);
-		voz = new TextToSpeech(this, this);
-		verificaProgreso();
-		voz.setOnUtteranceProgressListener(progress);
+		voz = new TextToSpeech(this, this); //Inicializamos la voz del dispositivo
+		verificaProgreso(); //Inializa la variable progress la cual Permitira gestionar las diferentes etapas de la voz del dispositivo : Cuando comienza a hablar, cuando hay un error y cuando termina
+		voz.setOnUtteranceProgressListener(progress);//Se asigna progress a la voz que se usara para poder identificar sus estados
 		saludo = false;
 		
 	}
 	
 	private void verificaProgreso(){
 		progress = new UtteranceProgressListener() {
-			
+			//El parametro string de cada uno de los metodos identifica a una cadena de texto que el dispositivo dira
 			@Override
 			public void onStart(String arg0) {
-				// TODO Auto-generated method stub
-				Log.d("String",arg0);
 				
 			}
 			
 			@Override
 			public void onError(String arg0) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onDone(String arg0) {
-				// TODO Auto-generated method stub
+				
+				
 				if(arg0.equals("termino"))
 					return;
-				
+				//Lanzamos el reconocimiento de voz
 					Intent intent = new Intent(
 							RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
@@ -99,6 +97,7 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 		if(v.getId() == R.id.registroButton){
 			if(saludo)
 				return;
+			//Nuevo hashmap que tiene un id y el valor de nombre, el cual identidicara a la cadena de texto que el dispositivo dira
 			voiceEntries = new HashMap<String, String>();
 			voiceEntries.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "nombre");
 			voz.speak("Hola dime tu nombre", TextToSpeech.QUEUE_FLUSH,voiceEntries);
@@ -108,6 +107,7 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 
 	@Override
 	public void onInit(int status) {
+		//Se verifica que el dispositivo haya podido hablar
 		if(status != TextToSpeech.ERROR){
             voz.setLanguage(Locale.getDefault());
         }else{
@@ -137,6 +137,7 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 					asunto = text.get(0);
 					Log.d("Asunto", asunto);
 					saludo = false;
+					//Almacena la información en esta spreadsheet https://docs.google.com/spreadsheets/d/1oY7Ib5DJL9kyxfa_J2g1PjTn6xeEUC5552gEKxtS3aU/edit
 					subirInfo();
 				}
 				
@@ -189,6 +190,7 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 	
 	public void subirInfo(){
 		aq = new AQuery(getApplicationContext());
+		//Url del servicio en Google Apps Script
 		String url = "https://script.google.com/macros/s/AKfycbxr2xFPdVJcnAuIz3S5jJRNzdT0jj9fGnbk07JXfzkKPcJEAnDY/exec?nombre="+nombre+"&asunto="+asunto;
 		aq.ajax(url, JSONObject.class, this,"jsonCallback");
 	}

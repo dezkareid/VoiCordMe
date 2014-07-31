@@ -131,7 +131,7 @@ public class VoiCordMeActivity extends Activity implements OnClickListener, OnIn
 					voiceEntries.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "asunto");
 					nombre = text.get(0);
 					Log.d("Nombre", nombre);
-					voz.speak("Hola "+text.get(0)+" cual es el motivo de tu visita", TextToSpeech.QUEUE_FLUSH,voiceEntries);
+					voz.speak("Hola "+text.get(0)+" Bienvenido a mejorandola cual es el motivo de tu visita", TextToSpeech.QUEUE_FLUSH,voiceEntries);
 					saludo = true;
 				}else{
 					asunto = text.get(0);
